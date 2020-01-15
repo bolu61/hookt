@@ -1,9 +1,15 @@
 [tool.poetry]
 name = "hookt"
-version = "0.1.0"
-description = "Python function hooks using decorators."
+version = "0.1.1"
+description = "Asynchronous function hooks using decorators."
 authors = ["nanananisore"]
 license = "MIT"
+
+readme = "README.md"
+repository = "https://github.com/nanananisore/hookt"
+
+keywords = ["hook", "anyio", "event", "decorator", "async"]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
