@@ -17,14 +17,13 @@ class BaseTrigger(ABC):
     def hook(self, callback):
         """Register a callback.
 
-        Arguments:
-            callback {function} -- [description]
+        :param callback: asynchronous function that take as input the result of the trigger
+        :type callback: function
         """
         pass
 
 
     async def __call__(self, *args, **kwargs):
-        """[summary]"""
         r = await self.__wrapped__(*args, **kwargs)
         s = r if type(r) is tuple else (r,)
         async with create_task_group() as tg:
@@ -35,6 +34,7 @@ class BaseTrigger(ABC):
 
 
 class DummyTrigger(BaseTrigger):
+    """Dummy trigger for internal use"""
 
     def __init__(self):
         self._listeners = set()
@@ -55,6 +55,13 @@ class DummyTrigger(BaseTrigger):
 
 
 class Trigger(BaseTrigger, ObjectProxy):
+    """Trigger that calls registered hooks after execution.
+
+    :param func: the function to set as trigger
+    :type func: function
+    :param listeners: a set of listeners
+    :type listeners: set, optional
+    """
 
     def __init__(self, func, listeners=None):
         super().__init__(func)
