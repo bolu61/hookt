@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 
 from anyio import create_task_group
 
-class ABCTrigger(ABC):
+class BaseTrigger(ABC):
+    """
+    """
 
     @property
     @abstractmethod
@@ -26,7 +28,7 @@ class ABCTrigger(ABC):
 
 
 
-class DummyTrigger(ABCTrigger):
+class DummyTrigger(BaseTrigger):
 
     def __init__(self):
         self._listeners = set()
@@ -46,7 +48,7 @@ class DummyTrigger(ABCTrigger):
 
 
 
-class Trigger(ABCTrigger, ObjectProxy):
+class Trigger(BaseTrigger, ObjectProxy):
 
     def __init__(self, func, listeners=None):
         super().__init__(func)
@@ -84,7 +86,7 @@ class Trigger(ABCTrigger, ObjectProxy):
 
 
 
-class BoundTrigger(ABCTrigger, ObjectProxy):
+class BoundTrigger(BaseTrigger, ObjectProxy):
 
     def __init__(self, func, listeners, class_listeners):
         super().__init__(func)
