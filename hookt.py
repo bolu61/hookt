@@ -4,21 +4,27 @@ from abc import ABC, abstractmethod
 from anyio import create_task_group
 
 class BaseTrigger(ABC):
-    """
-    """
+    """Trigger base class."""
 
     @property
     @abstractmethod
     def listeners(self):
+        """Set of listeners."""
         pass
 
 
     @abstractmethod
     def hook(self, callback):
+        """Register a callback.
+
+        Arguments:
+            callback {function} -- [description]
+        """
         pass
 
 
     async def __call__(self, *args, **kwargs):
+        """[summary]"""
         r = await self.__wrapped__(*args, **kwargs)
         s = r if type(r) is tuple else (r,)
         async with create_task_group() as tg:
