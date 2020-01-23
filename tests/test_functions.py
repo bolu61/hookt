@@ -1,24 +1,22 @@
 from hookt import hook, trigger
+from anyio import sleep
 
 import pytest
-
-@trigger
-async def identity(arg):
-    return arg
-
-
-class listener:
-
-    def __init__(self, f):
-        self.result = None
-
-        @hook(f)
-        async def capture(res):
-            self.result = res
 
 
 @pytest.mark.anyio
 async def test_function():
-    l = listener(identity)
-    result = await identity(Ellipsis)
-    assert result == l.result
+
+    @trigger
+    async def identity(arg):
+        await sleep(0)
+        return arg
+
+    @hook(identity)
+    async def capture(captured_output):
+        nonlocal result
+        result = captured_output
+
+    result = None
+
+    assert await identity(Ellipsis) == result
