@@ -5,8 +5,8 @@ env:
   global:
     secure: Zvpa4vxr17cFooWfkljQ6zsowi3xFrYd08kWt+Vw/7x8WT763YGJ1fa3LNE1QNrYdu5wtwBpdQ6R+6CQhdwRcZzwyH8ZEDkdmpD9qeWYTm5GEpadQ9ibMmXIA4uJxTlJNfivTMdmA7UDDHX0UBgLT+s0vkjSBrLixgYH5ZC/hOHJf7LFwic+SvgtZ4oMjgHId6r1MFQrF7yqBrZxNa54+LzZyVRaFtSx1HDKohRuBSKQQlZV5+Lzkc2rO0CpX3u0TBlqoYIxZWN2oeVu+IzKZU/0BLvXNVx6ojPCMfnv3L+a2hzbzJiF5gbDvD9xB3NSd2wSuLbacf/frGPoGRlAjJ4DWDrK2x87U4ngutp+KI5s9JHzfyGN1fDDPCnqlxGaqEa3gEDDp2V0bMsbXlPS7y/qli1QDl5eu9jSWS33xcRiLRb4KNaX9gt/D+ZDXErcSpIyGw/qhZZx8BAp3xk70a9NEPcfstreNp+jkit/U4Cj4TqY9h3q1bxb3DEZdHS9Q9JoKfF9fGQs8e3Dxis1odTGH5P3rBxJX+W5vIStGIxu9st2q6aoXzkdGcBX6aXci+zr11H9hYHuPKFQl2AKyb2VbGeiF1wu4KpsxiGNj5j4f7KTF4BLPl8RXdyXeKWbZmjxecRJWpyDWU4Mg6S07H3YhQHmGpv+ijDPgZNMsxA=
 before_install:
-- curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py
-  | python
+- "curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python"
+- "source $HOME/.poetry/env"
 install:
 - poetry install
 script:
