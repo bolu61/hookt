@@ -1,4 +1,4 @@
-from hookt import hook, TriggerGroup
+from hookt import TriggerGroup
 from anyio import sleep
 
 import pytest
