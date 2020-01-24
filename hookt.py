@@ -93,10 +93,6 @@ class Trigger(BaseTrigger, ObjectProxy):
 
         :param callback: asynchronous function that takes as input the result of the trigger
         :type callback: function
-        :param instance: [description], defaults to None
-        :type instance: [type], optional
-        :param owner: [description], defaults to None
-        :type owner: [type], optional
         """
         if instance or owner:
             self.__get__(instance, owner or type(instance)).hook(callback)
@@ -112,6 +108,10 @@ class Trigger(BaseTrigger, ObjectProxy):
 
 
 class BoundTrigger(BaseTrigger, ObjectProxy):
+    """A trigger bound to an instance.
+
+    This class should not be created directly in normal circumstances.
+    """
 
     def __init__(self, func, listeners, class_listeners):
         super().__init__(func)
@@ -134,6 +134,12 @@ class BoundTrigger(BaseTrigger, ObjectProxy):
 
 
 class TriggerGroup(object):
+    """A group for named triggers
+
+    A trigger group can be used on its own or as a class member.
+    In the latter case, referencing it from an instance will use that instance's
+    group, which inherits from the class group.
+    """
 
     def __init__(self):
         self._hashed_hooks = {}
@@ -159,6 +165,12 @@ class TriggerGroup(object):
 
 
     def trigger(self, name):
+        """Decorate an asynchronous function as a named trigger.
+
+        :param name: the name of the trigger.
+        :type name: str
+        :raises ValueError: raised when the name is already defined for another trigger.
+        """
         def deco(f):
             if name in self._hashed_hooks:
                 f = self._hashed_hooks[name]
@@ -173,6 +185,14 @@ class TriggerGroup(object):
 
 
     def hook(self, name, instance=None, owner=None):
+        """Decorate am asynchronous function to register it as a callback.
+
+        Function registered on triggers will be called everytime the triggers are
+        executed, regardless of the instance they are bound to.
+
+        :param name: the name of the trigger to be hooked on
+        :type name: str
+        """
         if name not in self._hashed_hooks:
             self._hashed_hooks[name] = h = DummyTrigger()
         else:
@@ -183,6 +203,10 @@ class TriggerGroup(object):
 
 
 class BoundTriggerGroup(TriggerGroup):
+    """A TriggerGroup bound to an instance
+
+    This class should not be created directly under normal circumstances.
+    """
 
     def __init__(self, instance, owner, hashed_hooks):
         self.instance = instance
@@ -199,16 +223,15 @@ class BoundTriggerGroup(TriggerGroup):
 
 
     def hook(self, name, instance=None, owner=None):
+        """Decorate am asynchronous function to register it as a callback.
+
+        Functions registered on triggers bound to this instance will not be called when
+        the same triggers bound to other instances are executed.
+
+        :param name: the name of the trigger to be hooked on
+        :type name: str
+        """
         return super().hook(name, instance or self.instance, owner or self.owner)
-
-
-
-class localfunction(ObjectProxy):
-    def __get__(self, instance=None, owner=None):
-        return self
-
-    def __call__(self, *args, **kwargs):
-        return self.__wrapped__(*args, **kwargs)
 
 
 
@@ -226,14 +249,26 @@ class HooksMixin:
 
 
 def trigger(f):
+    """Create a trigger from an asynchronous function.
+
+    :param f: the function to set as a trigger
+    :type f: function
+    :return: a trigger
+    :rtype: class:`Trigger`
+    """
     return Trigger(f)
 
 
-def hook(h, instance=None, owner=None):
+def hook(t, instance=None, owner=None):
+    """Decorate a function to be registered on a trigger
+
+    :param t: the trigger to register the function on
+    :type t: class:`Trigger`
+    """
     if instance or owner:
-        h = h.__get__(instance, owner or type(instance))
+        t = t.__get__(instance, owner or type(instance))
 
     def deco(f):
-        h.hook(f)
+        t.hook(f)
         return f
     return deco
