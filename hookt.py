@@ -59,7 +59,7 @@ class Trigger(BaseTrigger, ObjectProxy):
 
     :param func: the function to set as trigger
     :type func: function
-    :param listeners: a set of listeners
+    :param listeners: a set of listeners, defaults to None
     :type listeners: set, optional
     """
 
@@ -87,6 +87,15 @@ class Trigger(BaseTrigger, ObjectProxy):
 
 
     def hook(self, callback, instance=None, owner=None):
+        """Register a callback
+
+        :param callback: asynchronous function that takes as input the result of the trigger
+        :type callback: function
+        :param instance: [description], defaults to None
+        :type instance: [type], optional
+        :param owner: [description], defaults to None
+        :type owner: [type], optional
+        """
         if instance or owner:
             self.__get__(instance, owner or type(instance)).hook(callback)
         else:
@@ -95,6 +104,7 @@ class Trigger(BaseTrigger, ObjectProxy):
 
     @property
     def listeners(self):
+        """Set of listeners"""
         return self._self_listeners
 
 
@@ -149,14 +159,14 @@ class TriggerGroup(object):
     def trigger(self, name):
         def deco(f):
             if name in self._hashed_hooks:
-                h = self._hashed_hooks[name]
+                f = self._hashed_hooks[name]
                 if isinstance(h, Trigger):
                     raise ValueError(f'Trigger "{name}" already defined')
                 elif isinstance(h, DummyTrigger):
-                    h = Trigger(f, h.listeners)
+                    f = Trigger(f, h.listeners)
             else:
-                self._hashed_hooks[name] = h = Trigger(f)
-            return h
+                self._hashed_hooks[name] = f = Trigger(f)
+            return f
         return deco
 
 
@@ -184,22 +194,6 @@ class BoundTriggerGroup(TriggerGroup):
 
     def __getitem__(self, key):
         return super().__getitem__(key).__get__(self.instance, self.owner)
-
-
-    def trigger(self, name, bind=False):
-        def deco(f):
-            if not bind:
-                f = localfunction(f)
-            if name in self._hashed_hooks:
-                h = self._hashed_hooks[name]
-                if isinstance(h, Trigger):
-                    raise ValueError(f'Trigger "{name}" already defined')
-                elif isinstance(h, DummyTrigger):
-                    h = Trigger(f, h.listeners)
-            else:
-                self._hashed_hooks[name] = h = Trigger(f)
-            return h.__get__(self.instance, self.owner)
-        return deco
 
 
     def hook(self, name):
