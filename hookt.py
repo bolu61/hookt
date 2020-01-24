@@ -196,8 +196,8 @@ class BoundTriggerGroup(TriggerGroup):
         return super().__getitem__(key).__get__(self.instance, self.owner)
 
 
-    def hook(self, name):
-        return super().hook(name, self.instance, self.owner)
+    def hook(self, name, instance=None, owner=None):
+        return super().hook(name, instance or self.instance, owner or self.owner)
 
 
 
