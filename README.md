@@ -9,8 +9,6 @@
     <img alt="PyPI - License" src="https://img.shields.io/pypi/l/hookt"></a>
 </p>
 
----
-
 `hookt` is an asynchronous event framework utilizing decorators.
 It uses `anyio`, so it is compatible with `asyncio`, `curio` and `trio`.
 For an up-to-date list of compatible backends,
