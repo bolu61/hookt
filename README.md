@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/nanananisore/hookt.svg?branch=master)](https://travis-ci.com/nanananisore/hookt)
+
 `hookt` is an asynchronous event framework utilizing decorators.
 It uses `anyio`, so it is compatible with `asyncio`, `curio` and `trio`.
 For an up-to-date list of compatible backends,
