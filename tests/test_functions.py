@@ -1,4 +1,4 @@
-from hookt import hook, trigger
+from hookt import on, trigger
 from anyio import sleep
 
 import pytest
@@ -12,7 +12,7 @@ async def test_function():
         await sleep(0)
         return arg
 
-    @hook(identity)
+    @on(identity)
     async def capture(captured_output):
         nonlocal result
         result = captured_output

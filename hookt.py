@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 
 from anyio import create_task_group
 
-__all__ = ["BaseTrigger", "Trigger", "TriggerGroup", "HooksMixin", "trigger", "hook"]
+__all__ = ["BaseTrigger", "Trigger", "TriggerGroup", "HooksMixin", "trigger", "on"]
 
-class BaseTrigger(ABC):
+class BaseTrigger(ABC, ObjectProxy):
     """Trigger base class."""
 
     @property
@@ -51,12 +51,16 @@ class DummyTrigger(BaseTrigger):
         return self._listeners
 
 
+    def hook(self, callback):
+        self._listeners.add(callback)
+
+
     async def __call__(self):
         raise TypeError("Trigger has not been defined yet")
 
 
 
-class Trigger(BaseTrigger, ObjectProxy):
+class Trigger(BaseTrigger):
     """Trigger that calls registered hooks after execution.
 
     :param func: the function to set as trigger
@@ -107,7 +111,7 @@ class Trigger(BaseTrigger, ObjectProxy):
 
 
 
-class BoundTrigger(BaseTrigger, ObjectProxy):
+class BoundTrigger(BaseTrigger):
     """A trigger bound to an instance.
 
     This class should not be created directly in normal circumstances.
@@ -173,7 +177,7 @@ class TriggerGroup(object):
         """
         def deco(f):
             if name in self._hashed_hooks:
-                f = self._hashed_hooks[name]
+                h = self._hashed_hooks[name]
                 if isinstance(h, Trigger):
                     raise ValueError(f'Trigger "{name}" already defined')
                 elif isinstance(h, DummyTrigger):
@@ -184,7 +188,7 @@ class TriggerGroup(object):
         return deco
 
 
-    def hook(self, name, instance=None, owner=None):
+    def on(self, name, instance=None, owner=None):
         """Decorate am asynchronous function to register it as a callback.
 
         Function registered on triggers will be called everytime the triggers are
@@ -198,7 +202,7 @@ class TriggerGroup(object):
         else:
             h = self._hashed_hooks[name]
 
-        return hook(h, instance, owner)
+        return on(h, instance, owner)
 
 
 
@@ -222,7 +226,7 @@ class BoundTriggerGroup(TriggerGroup):
         return super().__getitem__(key).__get__(self.instance, self.owner)
 
 
-    def hook(self, name, instance=None, owner=None):
+    def on(self, name, instance=None, owner=None):
         """Decorate am asynchronous function to register it as a callback.
 
         Functions registered on triggers bound to this instance will not be called when
@@ -231,7 +235,7 @@ class BoundTriggerGroup(TriggerGroup):
         :param name: the name of the trigger to be hooked on
         :type name: str
         """
-        return super().hook(name, instance or self.instance, owner or self.owner)
+        return super().on(name, instance or self.instance, owner or self.owner)
 
 
 
@@ -243,8 +247,8 @@ class HooksMixin:
         return self.hooks.trigger(name)
 
 
-    def hook(self, name):
-        return self.hooks.hook(name)
+    def on(self, name):
+        return self.hooks.on(name)
 
 
 
@@ -259,7 +263,7 @@ def trigger(f):
     return Trigger(f)
 
 
-def hook(t, instance=None, owner=None):
+def on(t, instance=None, owner=None):
     """Decorate a function to be registered on a trigger
 
     :param t: the trigger to register the function on

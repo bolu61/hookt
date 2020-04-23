@@ -1,4 +1,4 @@
-from hookt import TriggerGroup
+from hookt import TriggerGroup, HooksMixin
 from anyio import sleep
 
 import pytest
@@ -7,17 +7,17 @@ import pytest
 @pytest.mark.anyio
 async def test_function():
 
-    class Sample:
-        g = TriggerGroup()
+    class Sample(HooksMixin):
+        hooks = TriggerGroup()
 
-        @g.trigger("ident")
+        @hooks.trigger("ident")
         async def identity(self, arg):
             await sleep(0)
             return arg
 
     sample = Sample()
 
-    @sample.g.hook("ident")
+    @sample.on("ident")
     async def capture(captured_output):
         nonlocal result
         result = captured_output
